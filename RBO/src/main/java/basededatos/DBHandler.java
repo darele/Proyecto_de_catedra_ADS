@@ -1,17 +1,9 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package basededatos;
 
 import java.sql.SQLException;
 import java.util.List;
 import java.util.stream.Collectors;
 
-/**
- *
- * @author pdarw
- */
 public class DBHandler {
 
     private final Conexion conexion;
@@ -52,6 +44,9 @@ public class DBHandler {
             StringBuilder sb = new StringBuilder(c.name()).append(' ').append(c.type());
             if (c.primaryKey()) {
                 sb.append(" PRIMARY KEY");
+                if (c.type().equals("INT")) {
+                    sb.append(" AUTO_INCREMENT");
+                }
             } else if (c.notNull()) {
                 sb.append(" NOT NULL");
             }
@@ -112,6 +107,8 @@ public class DBHandler {
                     DBHandler.Column.fk("id_empleado", "VARCHAR(10)", "Empleado", "id_empleado")
                 )
             );
+            
+            
             
         } catch (SQLException ex) {
             System.getLogger(DBHandler.class.getName()).log(System.Logger.Level.ERROR, 

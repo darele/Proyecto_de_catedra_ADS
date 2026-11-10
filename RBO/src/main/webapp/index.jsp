@@ -11,7 +11,6 @@
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <meta http-equiv="refresh" content="0; url=RH/RHIndex.jsp" />
         <title>This is Index.JSP</title>
     </head>
     <body>
