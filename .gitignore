@@ -25,3 +25,4 @@ replay_pid*
 /RBO_marcas_web/nbproject/private/
 /RBO_marcas_web/target/
 /RBO/target/
+RBO/src/main/resources/secret.properties
