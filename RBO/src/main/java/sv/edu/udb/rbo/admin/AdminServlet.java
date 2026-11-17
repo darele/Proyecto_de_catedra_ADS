@@ -1,6 +1,7 @@
 package sv.edu.udb.rbo.admin;
 
 import java.io.IOException;
+import java.net.URLEncoder;
 import java.sql.SQLException;
 import java.sql.Time;
 import java.util.logging.Level;
@@ -14,6 +15,7 @@ import javax.servlet.http.HttpSession;
 import sv.edu.udb.rbo.ModoDesarrollo;
 import sv.edu.udb.rbo.RboServlet;
 import sv.edu.udb.rbo.beans.Empleado;
+import sv.edu.udb.rbo.model.BaseDatosException;
 import sv.edu.udb.rbo.model.DataManager;
 
 /**
@@ -29,7 +31,8 @@ import sv.edu.udb.rbo.model.DataManager;
  * (ver {@link ModoDesarrollo}): si nadie inició sesión, se crea una sesión de prueba
  * con un admin ficticio.</p>
  *
- * <p>Acciones: (ninguna) o inicio | empleados.
+ * <p>Acciones: (ninguna) o inicio | empleados | nuevo-empleado | eliminar-empleado (vistas);
+ * guardar-empleado | borrar-empleado (POST que modifican datos).
  * Para agregar una pantalla: (1) un case en {@link #resolverVista(String)}, (2) cargar sus
  * datos en {@link #prepararDatos}, (3) crear su JSP en WEB-INF/jsp/admin/ y (4) un enlace en
  * AdminMenu.jsp.</p>
@@ -43,6 +46,7 @@ public class AdminServlet extends HttpServlet {
     static final String VISTA_INICIO = "AdminInicio.jsp";
     static final String VISTA_EMPLEADOS = "AdminEmpleados.jsp";
     static final String VISTA_NUEVO_EMPLEADO = "AdminNuevoEmpleado.jsp";
+    static final String VISTA_ELIMINAR_EMPLEADO = "AdminEliminarEmpleado.jsp";
 
     private DataManager dataManager;
 
@@ -91,6 +95,10 @@ public class AdminServlet extends HttpServlet {
             guardarEmpleado(request, response);
             return;
         }
+        if ("borrar-empleado".equals(request.getParameter("action"))) {
+            borrarEmpleado(request, response, empleado);
+            return;
+        }
 
         String vista = resolverVista(request.getParameter("action"));
         prepararDatos(vista, request);
@@ -135,6 +143,45 @@ public class AdminServlet extends HttpServlet {
         }
     }
 
+    /**
+     * Elimina un empleado. Solo por POST (un enlace GET podría dispararse con solo abrir una URL).
+     * Éxito: redirige a la lista con ?eliminado=ID (patrón PRG, recargar no repite el borrado).
+     * Error: vuelve a mostrar la lista con el mensaje de {@link BaseDatosException}.
+     */
+    private void borrarEmpleado(HttpServletRequest request, HttpServletResponse response, Empleado enSesion)
+            throws ServletException, IOException {
+        String idEmpleado = request.getParameter("idEmpleado");
+
+        if (!"POST".equals(request.getMethod())) {
+            response.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED, "Eliminar requiere POST.");
+            return;
+        }
+
+        String error = null;
+        String detalle = null;
+        if (idEmpleado == null || idEmpleado.trim().isEmpty()) {
+            error = "No se indicó qué empleado eliminar.";
+        } else if (idEmpleado.equals(enSesion.getIdEmpleado())) {
+            error = "No puede eliminar su propio usuario mientras tiene la sesión abierta.";
+        } else {
+            try {
+                dataManager.eliminarEmpleado(idEmpleado);
+                response.sendRedirect(request.getContextPath() + "/admin?action=eliminar-empleado&eliminado="
+                        + URLEncoder.encode(idEmpleado, "UTF-8"));
+                return;
+            } catch (BaseDatosException e) {
+                error = e.getMessage();
+                detalle = e.getDetalleTecnico();
+                request.setAttribute("tipoError", e.getTipo().name());
+            }
+        }
+
+        request.setAttribute("error", error);
+        request.setAttribute("errorDetalle", detalle);
+        prepararDatos(VISTA_ELIMINAR_EMPLEADO, request);
+        getServletContext().getRequestDispatcher(VISTAS + VISTA_ELIMINAR_EMPLEADO).forward(request, response);
+    }
+
     /** Regla de acceso: solo el rol admin. Es estática y pura para probarla con JUnit. */
     static boolean puedeEntrar(Empleado empleado) {
         return empleado != null && empleado.isAdmin();
@@ -153,6 +200,8 @@ public class AdminServlet extends HttpServlet {
                 return VISTA_EMPLEADOS;
             case "nuevo-empleado":
                 return VISTA_NUEVO_EMPLEADO;
+            case "eliminar-empleado":
+                return VISTA_ELIMINAR_EMPLEADO;
             case "inicio":
             default:
                 return VISTA_INICIO;
@@ -173,6 +222,18 @@ public class AdminServlet extends HttpServlet {
                 break;
             case VISTA_NUEVO_EMPLEADO:
                 request.setAttribute("seccion", "empleados");
+                break;
+            case VISTA_ELIMINAR_EMPLEADO:
+                request.setAttribute("seccion", "empleados");
+                try {
+                    request.setAttribute("empleados", dataManager.getEmpleados());
+                } catch (SQLException e) {
+                    LOG.log(Level.WARNING, "No se pudo listar empleados: {0}", e.getMessage());
+                    // No pisar el error de un borrado fallido si ya hay uno.
+                    if (request.getAttribute("error") == null) {
+                        request.setAttribute("error", "No se pudo leer la lista de empleados: " + e.getMessage());
+                    }
+                }
                 break;
             case VISTA_INICIO:
             default:

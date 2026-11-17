@@ -166,6 +166,34 @@ public class DataManager {
         EmpleadoPeer.insertar(this, empleado, hash);
     }
 
+    /**
+     * Elimina un empleado.
+     *
+     * <p>Aquí se concentra el manejo de errores: la SQLException del Peer se convierte en una
+     * {@link BaseDatosException} con tipo y mensaje para el usuario. Las validaciones extra
+     * (por ejemplo, borrar en cascada sus marcas, o impedir borrar al último admin) van aquí,
+     * antes de llamar al Peer.</p>
+     *
+     * @throws BaseDatosException con tipo NO_ENCONTRADO si el carnet no existe, REGISTRO_EN_USO
+     *         si tiene marcas o tarifas, SIN_CONEXION si la base está caída, etc.
+     */
+    public void eliminarEmpleado(String idEmpleado) throws BaseDatosException {
+        String operacion = "eliminar el empleado " + idEmpleado;
+        int filas;
+        try {
+            filas = EmpleadoPeer.eliminar(this, idEmpleado);
+        } catch (SQLException e) {
+            BaseDatosException error = BaseDatosException.desde(e, operacion);
+            LOG.log(Level.WARNING, "Error al {0} [{1}]: {2}",
+                    new Object[]{operacion, error.getTipo(), e.getMessage()});
+            throw error;
+        }
+        if (filas == 0) {
+            throw new BaseDatosException(BaseDatosException.Tipo.NO_ENCONTRADO,
+                    "No existe un empleado con el carnet " + idEmpleado + ". Puede que ya se haya eliminado.");
+        }
+    }
+
     // ------------------------------------------------------------------ marcas
 
     public void registrarMarca(Marca marca) throws SQLException {

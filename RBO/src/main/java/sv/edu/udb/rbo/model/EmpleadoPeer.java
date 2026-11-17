@@ -86,4 +86,22 @@ public final class EmpleadoPeer {
             return ps.executeUpdate();
         }
     }
+
+    /**
+     * Borra un empleado por su carnet.
+     *
+     * <p>Si el empleado tiene filas en Marca o Tarifa, MariaDB rechaza el DELETE con el
+     * código 1451 (llave foránea). La SQLException se deja subir tal cual: el DataManager
+     * la clasifica con {@link BaseDatosException#desde}.</p>
+     *
+     * @return filas eliminadas (0 si el carnet no existe, 1 si se borró).
+     */
+    public static int eliminar(DataManager dataManager, String idEmpleado) throws SQLException {
+        String sql = "DELETE FROM Empleado WHERE id_empleado = ?";
+        try (Connection connection = dataManager.getConnection();
+             PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, idEmpleado);
+            return ps.executeUpdate();
+        }
+    }
 }

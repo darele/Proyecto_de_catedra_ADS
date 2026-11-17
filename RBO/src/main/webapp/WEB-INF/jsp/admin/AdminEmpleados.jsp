@@ -22,9 +22,12 @@
     <jsp:include page="/WEB-INF/jsp/admin/AdminMenu.jsp" flush="true"/>
 
     <main class="admin-contenido">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <div class="encabezado-seccion">
             <h2>Empleados</h2>
-            <a href="<c:url value='/admin?action=nuevo-empleado'/>" class="btn">+ Nuevo Empleado</a>
+            <div class="botones-encabezado">
+                <a href="<c:url value='/admin?action=nuevo-empleado'/>" class="btn">+ Nuevo Empleado</a>
+                <a href="<c:url value='/admin?action=eliminar-empleado'/>" class="btn-peligro">Eliminar Empleado</a>
+            </div>
         </div>
 
         <c:choose>

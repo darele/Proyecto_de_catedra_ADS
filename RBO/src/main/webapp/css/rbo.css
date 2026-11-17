@@ -583,6 +583,93 @@ code {
     background-color: #eef2f7;
 }
 
+.btn-peligro {
+    display: inline-block;
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-size: 15px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    background-color: #ffffff;
+    color: #b02a37;
+    border: 1px solid #b02a37;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.btn-peligro:hover {
+    background-color: #b02a37;
+    color: #ffffff;
+}
+
+.tabla .btn-peligro {
+    padding: 6px 14px;
+    font-size: 13px;
+}
+
+/* encabezado de sección: título a la izquierda, botones a la derecha */
+.encabezado-seccion {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.encabezado-seccion h2 {
+    margin: 0;
+}
+
+.botones-encabezado {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.exito-msg {
+    background-color: #d1e7dd;
+    color: #0f5132;
+    border: 1px solid #badbcc;
+    padding: 10px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+    font-size: 14px;
+}
+
+.error-detallado {
+    text-align: left;
+}
+
+.error-detallado p {
+    margin: 8px 0 0;
+}
+
+.error-detallado details {
+    margin-top: 8px;
+    font-size: 12px;
+}
+
+.error-detallado code {
+    display: block;
+    margin-top: 4px;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+.celda-accion {
+    text-align: right;
+}
+
+.celda-accion form {
+    margin: 0;
+}
+
+.texto-tenue {
+    color: #65676b;
+    font-size: 13px;
+}
+
 @media (max-width: 720px) {
     .admin-layout {
         flex-direction: column;
@@ -599,5 +686,64 @@ code {
 
     .formulario .acciones {
         padding-left: 0;
+    }
+
+    /* Tabla apilable: en el teléfono cada fila es una tarjeta y se lee solo de arriba a abajo.
+       Cada <td> necesita data-label="..." con el nombre de su columna. */
+    .tabla-apilable thead {
+        display: none;
+    }
+
+    .tabla-apilable,
+    .tabla-apilable tbody,
+    .tabla-apilable tr,
+    .tabla-apilable td {
+        display: block;
+        width: 100%;
+    }
+
+    .tabla-apilable tr {
+        border: 1px solid #e3e7ee;
+        border-radius: 8px;
+        padding: 10px 14px;
+        margin-bottom: 12px;
+    }
+
+    .tabla-apilable td {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        border-bottom: none;
+        padding: 5px 0;
+        text-align: right;
+        word-break: break-word;
+    }
+
+    .tabla-apilable td::before {
+        content: attr(data-label);
+        font-weight: 600;
+        color: #65676b;
+        text-align: left;
+        flex-shrink: 0;
+    }
+
+    .tabla-apilable td.celda-accion {
+        display: block;
+        padding-top: 10px;
+        text-align: center;
+    }
+
+    .tabla-apilable td.celda-accion::before {
+        content: none;
+    }
+
+    .tabla-apilable .btn-peligro {
+        width: 100%;
+        padding: 10px;
+        font-size: 15px;
+    }
+
+    .admin-contenido {
+        padding: 20px 16px;
     }
 }
