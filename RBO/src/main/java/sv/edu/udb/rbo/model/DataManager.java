@@ -160,6 +160,12 @@ public class DataManager {
         return EmpleadoPeer.listarTodos(this);
     }
 
+    public void registrarEmpleado(Empleado empleado, String passwordPlano) throws SQLException{
+        intentarAsegurarEsquema();
+        String hash = SeguridadUtil.encriptarSHA256(passwordPlano);
+        EmpleadoPeer.insertar(this, empleado, hash);
+    }
+
     // ------------------------------------------------------------------ marcas
 
     public void registrarMarca(Marca marca) throws SQLException {

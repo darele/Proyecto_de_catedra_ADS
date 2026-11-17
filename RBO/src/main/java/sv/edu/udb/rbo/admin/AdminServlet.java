@@ -2,6 +2,7 @@ package sv.edu.udb.rbo.admin;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.sql.Time;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.servlet.ServletConfig;
@@ -41,6 +42,7 @@ public class AdminServlet extends HttpServlet {
     static final String VISTAS = "/WEB-INF/jsp/admin/";
     static final String VISTA_INICIO = "AdminInicio.jsp";
     static final String VISTA_EMPLEADOS = "AdminEmpleados.jsp";
+    static final String VISTA_NUEVO_EMPLEADO = "AdminNuevoEmpleado.jsp";
 
     private DataManager dataManager;
 
@@ -85,6 +87,46 @@ public class AdminServlet extends HttpServlet {
             return;
         }
 
+
+        //GUARDAR EMPLEADO
+        String action = request.getParameter("action");
+
+        if ("guardar-empleado".equals(action)) {
+            String idEmpleado = request.getParameter("idEmpleado");
+            String nombre = request.getParameter("nombre");
+            String apellido = request.getParameter("apellido");
+
+            String tarifaStr = request.getParameter("tarifa");
+            Double tarifa = (tarifaStr != null && !tarifaStr.trim().isEmpty()) ? Double.parseDouble(tarifaStr) : null;
+
+            // Los inputs HTML <input type="time"> devuelven "HH:mm". java.sql.Time requiere "HH:mm:ss"
+            String horaEntradaStr = request.getParameter("hora_entrada");
+            if (horaEntradaStr != null && horaEntradaStr.length() == 5) horaEntradaStr += ":00";
+            Time horaEntrada = Time.valueOf(horaEntradaStr);
+
+            String horaSalidaStr = request.getParameter("hora_salida");
+            if (horaSalidaStr != null && horaSalidaStr.length() == 5) horaSalidaStr += ":00";
+            Time horaSalida = Time.valueOf(horaSalidaStr);
+
+            int tiempoReceso = Integer.parseInt(request.getParameter("tiempo_receso"));
+            String rol = request.getParameter("rol");
+            String password = request.getParameter("password");
+
+            try {
+                Empleado nuevoEmp = new Empleado(idEmpleado, nombre, apellido, tarifa, horaEntrada, horaSalida, tiempoReceso, rol);
+                dataManager.registrarEmpleado(nuevoEmp, password);
+
+                response.sendRedirect(request.getContextPath() + "/admin?action=empleados");
+                return;
+            } catch (SQLException e) {
+                LOG.log(Level.WARNING, "Error al registrar empleado en BD: {0}", e.getMessage());
+                request.setAttribute("error", "Error al registrar empleado (¿Carnet duplicado?): " + e.getMessage());
+                request.setAttribute("seccion", "empleados");
+                getServletContext().getRequestDispatcher(VISTAS + VISTA_NUEVO_EMPLEADO).forward(request, response);
+                return;
+            }
+        }
+
         String vista = resolverVista(request.getParameter("action"));
         prepararDatos(vista, request);
         getServletContext().getRequestDispatcher(VISTAS + vista).forward(request, response);
@@ -106,6 +148,8 @@ public class AdminServlet extends HttpServlet {
         switch (action) {
             case "empleados":
                 return VISTA_EMPLEADOS;
+            case "nuevo-empleado":
+                return VISTA_NUEVO_EMPLEADO;
             case "inicio":
             default:
                 return VISTA_INICIO;
@@ -123,6 +167,9 @@ public class AdminServlet extends HttpServlet {
                     LOG.log(Level.WARNING, "No se pudo listar empleados: {0}", e.getMessage());
                     request.setAttribute("error", "No se pudo leer la lista de empleados: " + e.getMessage());
                 }
+                break;
+            case VISTA_NUEVO_EMPLEADO:
+                request.setAttribute("seccion", "empleados");
                 break;
             case VISTA_INICIO:
             default:

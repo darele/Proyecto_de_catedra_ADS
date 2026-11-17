@@ -22,7 +22,10 @@
     <jsp:include page="/WEB-INF/jsp/admin/AdminMenu.jsp" flush="true"/>
 
     <main class="admin-contenido">
-        <h2>Empleados</h2>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h2>Empleados</h2>
+            <a href="<c:url value='/admin?action=nuevo-empleado'/>" class="btn">+ Nuevo Empleado</a>
+        </div>
 
         <c:choose>
             <c:when test="${not empty error}">
