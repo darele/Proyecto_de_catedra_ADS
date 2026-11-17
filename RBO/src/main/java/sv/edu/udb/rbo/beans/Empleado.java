@@ -1,6 +1,7 @@
 package sv.edu.udb.rbo.beans;
 
 import java.io.Serializable;
+import java.sql.Time;
 
 /**
  * JavaBean que representa una fila de la tabla Empleado.
@@ -22,7 +23,11 @@ public class Empleado implements Serializable {
     private String idEmpleado = "";
     private String nombre = "";
     private String apellido = "";
-    private String rol = "";
+    private Double tarifa;
+    private Time horaEntrada;
+    private Time horaSalida;
+    private int tiempoReceso;
+    private String rol = ""; // admin | RH | Contabilidad | Empleado
 
     public Empleado() {
     }
@@ -31,6 +36,24 @@ public class Empleado implements Serializable {
         this.idEmpleado = idEmpleado;
         this.nombre = nombre;
         this.apellido = apellido;
+        this.rol = rol;
+    }
+
+    public Empleado(String idEmpleado,
+                    String nombre,
+                    String apellido,
+                    Double tarifa,
+                    Time horaEntrada,
+                    Time horaSalida,
+                    int tiempoReceso,
+                    String rol) {
+        this.idEmpleado = idEmpleado;
+        this.nombre = nombre;
+        this.apellido = apellido;
+        this.tarifa = tarifa;
+        this.horaEntrada = horaEntrada;
+        this.horaSalida = horaSalida;
+        this.tiempoReceso = tiempoReceso;
         this.rol = rol;
     }
 
@@ -64,6 +87,38 @@ public class Empleado implements Serializable {
 
     public void setRol(String rol) {
         this.rol = rol;
+    }
+
+    public Double getTarifa() {
+        return tarifa;
+    }
+
+    public void setTarifa(Double tarifa) {
+        this.tarifa = tarifa;
+    }
+
+    public Time getHoraEntrada() {
+        return horaEntrada;
+    }
+
+    public void setHoraEntrada(Time horaEntrada) {
+        this.horaEntrada = horaEntrada;
+    }
+
+    public Time getHoraSalida() {
+        return horaSalida;
+    }
+
+    public void setHoraSalida(Time horaSalida) {
+        this.horaSalida = horaSalida;
+    }
+
+    public int getTiempoReceso() {
+        return tiempoReceso;
+    }
+
+    public void setTiempoReceso(int tiempoReceso) {
+        this.tiempoReceso = tiempoReceso;
     }
 
     /** Propiedad derivada de solo lectura, usada en las vistas como {@code ${empleado.nombreCompleto}}. */

@@ -63,4 +63,8 @@ public final class EmpleadoPeer {
                 rs.getString("Apellido"),
                 rs.getString("rol"));
     }
+
+    public static int insertar(DataManager dataManager, Empleado empleado, String passwordHash) throws SQLException{
+        return 0;
+    }
 }
