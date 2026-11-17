@@ -87,49 +87,52 @@ public class AdminServlet extends HttpServlet {
             return;
         }
 
-
-        //GUARDAR EMPLEADO
-        String action = request.getParameter("action");
-
-        if ("guardar-empleado".equals(action)) {
-            String idEmpleado = request.getParameter("idEmpleado");
-            String nombre = request.getParameter("nombre");
-            String apellido = request.getParameter("apellido");
-
-            String tarifaStr = request.getParameter("tarifa");
-            Double tarifa = (tarifaStr != null && !tarifaStr.trim().isEmpty()) ? Double.parseDouble(tarifaStr) : null;
-
-            // Los inputs HTML <input type="time"> devuelven "HH:mm". java.sql.Time requiere "HH:mm:ss"
-            String horaEntradaStr = request.getParameter("hora_entrada");
-            if (horaEntradaStr != null && horaEntradaStr.length() == 5) horaEntradaStr += ":00";
-            Time horaEntrada = Time.valueOf(horaEntradaStr);
-
-            String horaSalidaStr = request.getParameter("hora_salida");
-            if (horaSalidaStr != null && horaSalidaStr.length() == 5) horaSalidaStr += ":00";
-            Time horaSalida = Time.valueOf(horaSalidaStr);
-
-            int tiempoReceso = Integer.parseInt(request.getParameter("tiempo_receso"));
-            String rol = request.getParameter("rol");
-            String password = request.getParameter("password");
-
-            try {
-                Empleado nuevoEmp = new Empleado(idEmpleado, nombre, apellido, tarifa, horaEntrada, horaSalida, tiempoReceso, rol);
-                dataManager.registrarEmpleado(nuevoEmp, password);
-
-                response.sendRedirect(request.getContextPath() + "/admin?action=empleados");
-                return;
-            } catch (SQLException e) {
-                LOG.log(Level.WARNING, "Error al registrar empleado en BD: {0}", e.getMessage());
-                request.setAttribute("error", "Error al registrar empleado (¿Carnet duplicado?): " + e.getMessage());
-                request.setAttribute("seccion", "empleados");
-                getServletContext().getRequestDispatcher(VISTAS + VISTA_NUEVO_EMPLEADO).forward(request, response);
-                return;
-            }
+        if ("guardar-empleado".equals(request.getParameter("action"))) {
+            guardarEmpleado(request, response);
+            return;
         }
 
         String vista = resolverVista(request.getParameter("action"));
         prepararDatos(vista, request);
         getServletContext().getRequestDispatcher(VISTAS + vista).forward(request, response);
+    }
+
+    private void guardarEmpleado(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        String idEmpleado = request.getParameter("idEmpleado");
+        String nombre = request.getParameter("nombre");
+        String apellido = request.getParameter("apellido");
+
+        String tarifaStr = request.getParameter("tarifa");
+        Double tarifa = (tarifaStr != null && !tarifaStr.trim().isEmpty())
+                ? Double.parseDouble(tarifaStr) : null;
+
+        // Los inputs HTML <input type="time"> devuelven "HH:mm". java.sql.Time requiere "HH:mm:ss"
+        String horaEntradaStr = request.getParameter("hora_entrada");
+        if (horaEntradaStr != null && horaEntradaStr.length() == 5) horaEntradaStr += ":00";
+        assert horaEntradaStr != null;
+        Time horaEntrada = Time.valueOf(horaEntradaStr);
+
+        String horaSalidaStr = request.getParameter("hora_salida");
+        if (horaSalidaStr != null && horaSalidaStr.length() == 5) horaSalidaStr += ":00";
+        assert horaSalidaStr != null;
+        Time horaSalida = Time.valueOf(horaSalidaStr);
+
+        int tiempoReceso = Integer.parseInt(request.getParameter("tiempo_receso"));
+        String rol = request.getParameter("rol");
+        String password = request.getParameter("password");
+
+        try {
+            Empleado nuevoEmp = new Empleado(idEmpleado, nombre, apellido, tarifa, horaEntrada,
+                    horaSalida, tiempoReceso, rol);
+            dataManager.registrarEmpleado(nuevoEmp, password);
+            response.sendRedirect(request.getContextPath() + "/admin?action=empleados");
+        } catch (SQLException e) {
+            LOG.log(Level.WARNING, "Error al registrar empleado en BD: {0}", e.getMessage());
+            request.setAttribute("error", "Error al registrar empleado (¿Carnet duplicado?): " + e.getMessage());
+            request.setAttribute("seccion", "empleados");
+            getServletContext().getRequestDispatcher(VISTAS + VISTA_NUEVO_EMPLEADO).forward(request, response);
+        }
     }
 
     /** Regla de acceso: solo el rol admin. Es estática y pura para probarla con JUnit. */
