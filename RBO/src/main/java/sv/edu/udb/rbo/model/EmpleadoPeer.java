@@ -87,6 +87,86 @@ public final class EmpleadoPeer {
         }
     }
 
+    /** Lee todos los datos de un empleado (menos la contraseña). Devuelve null si no existe. */
+    public static Empleado buscarPorId(DataManager dataManager, String idEmpleado) throws SQLException {
+        String sql = "SELECT id_empleado, nombre, Apellido, tarifa, hora_entrada, hora_salida, tiempo_receso, rol"
+                + " FROM Empleado WHERE id_empleado = ?";
+        try (Connection connection = dataManager.getConnection();
+             PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, idEmpleado);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (!rs.next()) {
+                    return null;
+                }
+                double tarifa = rs.getDouble("tarifa");
+                return new Empleado(
+                        rs.getString("id_empleado"),
+                        rs.getString("nombre"),
+                        rs.getString("Apellido"),
+                        rs.wasNull() ? null : tarifa,
+                        rs.getTime("hora_entrada"),
+                        rs.getTime("hora_salida"),
+                        rs.getInt("tiempo_receso"),
+                        rs.getString("rol"));
+            }
+        }
+    }
+
+    /**
+     * Actualiza una sola columna. La columna sale de {@link CampoEmpleado} (lista blanca), por eso
+     * es seguro ponerla en el texto del SQL; el valor sí va como parámetro.
+     *
+     * @return filas encontradas (0 si el carnet no existe).
+     */
+    public static int actualizarCampo(DataManager dataManager, String idEmpleado, CampoEmpleado campo, Object valor)
+            throws SQLException {
+        String sql = "UPDATE Empleado SET " + campo.getColumna() + " = ? WHERE id_empleado = ?";
+        try (Connection connection = dataManager.getConnection();
+             PreparedStatement ps = connection.prepareStatement(sql)) {
+            if (valor == null) {
+                ps.setNull(1, campo.getTipoSql());
+            } else {
+                ps.setObject(1, valor);
+            }
+            ps.setString(2, idEmpleado);
+            return ps.executeUpdate();
+        }
+    }
+
+    /** Actualiza todos los campos editables de una vez (no toca el carnet ni la contraseña). */
+    public static int actualizar(DataManager dataManager, Empleado empleado) throws SQLException {
+        String sql = "UPDATE Empleado SET nombre = ?, Apellido = ?, tarifa = ?, hora_entrada = ?,"
+                + " hora_salida = ?, tiempo_receso = ?, rol = ? WHERE id_empleado = ?";
+        try (Connection connection = dataManager.getConnection();
+             PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, empleado.getNombre());
+            ps.setString(2, empleado.getApellido());
+            if (empleado.getTarifa() != null) {
+                ps.setDouble(3, empleado.getTarifa());
+            } else {
+                ps.setNull(3, Types.DOUBLE);
+            }
+            ps.setTime(4, empleado.getHoraEntrada());
+            ps.setTime(5, empleado.getHoraSalida());
+            ps.setInt(6, empleado.getTiempoReceso());
+            ps.setString(7, empleado.getRol());
+            ps.setString(8, empleado.getIdEmpleado());
+            return ps.executeUpdate();
+        }
+    }
+
+    /** Cambia el hash de la contraseña. */
+    public static int actualizarPassword(DataManager dataManager, String idEmpleado, String passwordHash)
+            throws SQLException {
+        String sql = "UPDATE Empleado SET password = ? WHERE id_empleado = ?";
+        try (Connection connection = dataManager.getConnection();
+             PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, passwordHash);
+            ps.setString(2, idEmpleado);
+            return ps.executeUpdate();
+        }
+    }
+
     /**
      * Borra un empleado por su carnet.
      *

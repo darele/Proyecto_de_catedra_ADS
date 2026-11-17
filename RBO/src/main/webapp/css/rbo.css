@@ -670,6 +670,151 @@ code {
     font-size: 13px;
 }
 
+.btn-chico {
+    padding: 6px 14px;
+    font-size: 13px;
+}
+
+/* ------------------------------------------------------------ editor campo por campo */
+
+.barra-edicion {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.editor-campos {
+    border: 1px solid #e3e7ee;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.fila-edicion {
+    display: grid;
+    grid-template-columns: 170px 1fr auto;
+    align-items: center;
+    gap: 16px;
+    padding: 14px 16px;
+    border-bottom: 1px solid #e3e7ee;
+    min-height: 62px;
+}
+
+.fila-edicion:last-of-type {
+    border-bottom: none;
+}
+
+.fila-edicion.abierta {
+    background-color: #f4f7fc;
+    box-shadow: inset 4px 0 0 #003DA5;
+}
+
+.etiqueta-edicion {
+    font-weight: 600;
+    color: #212529;
+    font-size: 14px;
+}
+
+.valor-edicion {
+    font-size: 15px;
+    word-break: break-word;
+}
+
+.valor-edicion input,
+.valor-edicion select {
+    width: 100%;
+    max-width: 320px;
+    padding: 8px 12px;
+    border: 1px solid #ccd0d5;
+    border-radius: 6px;
+    font-size: 15px;
+    font-family: inherit;
+    background-color: #ffffff;
+}
+
+.valor-edicion input:focus,
+.valor-edicion select:focus {
+    outline: none;
+    border-color: #003DA5;
+    box-shadow: 0 0 0 3px rgba(0, 61, 165, 0.18);
+}
+
+.acciones-fila {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+}
+
+.acciones-fila .btn,
+.acciones-fila .btn-secundario {
+    padding: 7px 14px;
+    font-size: 14px;
+}
+
+.acciones-todos {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    padding: 14px 16px;
+    background-color: #f4f7fc;
+    border-top: 1px solid #e3e7ee;
+}
+
+/* Mensajes dentro de una fila: ocupan todo el ancho, debajo de etiqueta/valor/botones */
+.error-campo,
+.ok-campo {
+    grid-column: 1 / -1;
+    order: 10;
+    font-size: 13px;
+    padding: 6px 10px;
+    border-radius: 6px;
+}
+
+.error-campo {
+    background-color: #f8d7da;
+    color: #842029;
+}
+
+.ok-campo {
+    background-color: #d1e7dd;
+    color: #0f5132;
+}
+
+.zona-password .error-campo,
+.zona-password .ok-campo {
+    margin-bottom: 12px;
+}
+
+/* Al volver con #f-campo: deja aire arriba y resalta brevemente la fila */
+.fila-edicion,
+.zona-password,
+#f-todos {
+    scroll-margin-top: 80px;
+}
+
+.fila-edicion:target,
+.zona-password:target {
+    animation: resaltar-fila 1.6s ease-out;
+}
+
+@keyframes resaltar-fila {
+    from { background-color: #fff3cd; }
+    to   { background-color: transparent; }
+}
+
+.zona-password {
+    margin-top: 28px;
+    padding: 16px;
+    border: 1px solid #f5c2c7;
+    border-radius: 10px;
+}
+
+.zona-password h3 {
+    margin-top: 0;
+}
+
 @media (max-width: 720px) {
     .admin-layout {
         flex-direction: column;
@@ -743,7 +888,41 @@ code {
         font-size: 15px;
     }
 
+    .tabla-apilable .btn-secundario {
+        display: block;
+        width: 100%;
+        padding: 10px;
+        font-size: 15px;
+        text-align: center;
+    }
+
     .admin-contenido {
         padding: 20px 16px;
+    }
+
+    /* Editor: etiqueta, valor y botones uno debajo del otro */
+    .fila-edicion {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+
+    .valor-edicion input,
+    .valor-edicion select {
+        max-width: none;
+    }
+
+    .acciones-fila,
+    .acciones-todos {
+        justify-content: stretch;
+    }
+
+    .acciones-fila:empty {
+        display: none;
+    }
+
+    .acciones-fila > *,
+    .acciones-todos > * {
+        flex: 1;
+        text-align: center;
     }
 }

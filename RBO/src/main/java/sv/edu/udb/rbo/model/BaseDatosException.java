@@ -25,6 +25,8 @@ public class BaseDatosException extends Exception {
         REGISTRO_EN_USO,
         /** Llave primaria o única repetida. Código 1062. */
         DUPLICADO,
+        /** El valor no cabe o no es válido para la columna. Códigos 1048, 1265, 1292, 1366, 1406. */
+        VALOR_INVALIDO,
         /** El registro no existe (no viene de una SQLException: 0 filas afectadas). */
         NO_ENCONTRADO,
         /** No hay conexión con el servidor o el pool. SQLState 08xxx. */
@@ -41,6 +43,11 @@ public class BaseDatosException extends Exception {
     private static final int ER_DUP_ENTRY = 1062;
     private static final int ER_LOCK_WAIT_TIMEOUT = 1205;
     private static final int ER_LOCK_DEADLOCK = 1213;
+    private static final int ER_BAD_NULL = 1048;
+    private static final int WARN_DATA_TRUNCATED = 1265;
+    private static final int ER_TRUNCATED_WRONG_VALUE = 1292;
+    private static final int ER_TRUNCATED_WRONG_VALUE_FOR_FIELD = 1366;
+    private static final int ER_DATA_TOO_LONG = 1406;
 
     /** Extrae la tabla hija del mensaje de 1451: "... fails (`rbo_marcas`.`marca`, CONSTRAINT ...". */
     private static final Pattern TABLA_HIJA = Pattern.compile("\\(`[^`]+`\\.`([^`]+)`");
@@ -86,6 +93,9 @@ public class BaseDatosException extends Exception {
             case DUPLICADO:
                 mensaje = "No se puede " + operacion + ": ya existe un registro con ese identificador.";
                 break;
+            case VALOR_INVALIDO:
+                mensaje = "No se puede " + operacion + ": uno de los valores no es válido o es demasiado largo.";
+                break;
             case SIN_CONEXION:
                 mensaje = "No hay conexión con la base de datos. Encienda MySQL en XAMPP e intente de nuevo.";
                 break;
@@ -115,6 +125,12 @@ public class BaseDatosException extends Exception {
                     case ER_LOCK_WAIT_TIMEOUT:
                     case ER_LOCK_DEADLOCK:
                         return Tipo.BLOQUEO;
+                    case ER_BAD_NULL:
+                    case WARN_DATA_TRUNCATED:
+                    case ER_TRUNCATED_WRONG_VALUE:
+                    case ER_TRUNCATED_WRONG_VALUE_FOR_FIELD:
+                    case ER_DATA_TOO_LONG:
+                        return Tipo.VALOR_INVALIDO;
                     default:
                         break;
                 }

@@ -38,20 +38,28 @@
                 <p>Todavía no hay empleados registrados.</p>
             </c:when>
             <c:otherwise>
-                <table class="tabla">
+                <table class="tabla tabla-apilable">
                     <thead>
                         <tr>
                             <th>Carnet</th>
                             <th>Nombre</th>
                             <th>Rol</th>
+                            <th></th>
                         </tr>
                     </thead>
                     <tbody>
                         <c:forEach var="emp" items="${empleados}">
+                            <c:url var="urlEditar" value="/admin">
+                                <c:param name="action" value="editar-empleado"/>
+                                <c:param name="id" value="${emp.idEmpleado}"/>
+                            </c:url>
                             <tr>
-                                <td><c:out value="${emp.idEmpleado}"/></td>
-                                <td><c:out value="${emp.nombreCompleto}"/></td>
-                                <td><c:out value="${emp.rol}"/></td>
+                                <td data-label="Carnet"><c:out value="${emp.idEmpleado}"/></td>
+                                <td data-label="Nombre"><c:out value="${emp.nombreCompleto}"/></td>
+                                <td data-label="Rol"><c:out value="${emp.rol}"/></td>
+                                <td class="celda-accion">
+                                    <a href="${urlEditar}" class="btn-secundario btn-chico">Editar</a>
+                                </td>
                             </tr>
                         </c:forEach>
                     </tbody>

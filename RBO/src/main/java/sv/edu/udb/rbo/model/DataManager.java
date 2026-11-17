@@ -178,20 +178,82 @@ public class DataManager {
      *         si tiene marcas o tarifas, SIN_CONEXION si la base está caída, etc.
      */
     public void eliminarEmpleado(String idEmpleado) throws BaseDatosException {
-        String operacion = "eliminar el empleado " + idEmpleado;
+        modificarEmpleado(idEmpleado, "eliminar el empleado " + idEmpleado,
+                () -> EmpleadoPeer.eliminar(this, idEmpleado));
+    }
+
+    /** Contraseña que se asigna al reiniciarla desde la Interfaz de Admin. */
+    public static final String PASSWORD_POR_DEFECTO = "password123";
+
+    /**
+     * Lee todos los datos de un empleado (menos la contraseña).
+     *
+     * @throws BaseDatosException NO_ENCONTRADO si el carnet no existe, u otro tipo si falla la base.
+     */
+    public Empleado getEmpleado(String idEmpleado) throws BaseDatosException {
+        Empleado empleado;
+        try {
+            empleado = EmpleadoPeer.buscarPorId(this, idEmpleado);
+        } catch (SQLException e) {
+            throw registrar(BaseDatosException.desde(e, "leer el empleado " + idEmpleado), e);
+        }
+        if (empleado == null) {
+            throw noEncontrado(idEmpleado);
+        }
+        return empleado;
+    }
+
+    /** Edita una sola columna. El valor debe venir de {@link CampoEmpleado#convertir(String)}. */
+    public void actualizarCampoEmpleado(String idEmpleado, CampoEmpleado campo, Object valor)
+            throws BaseDatosException {
+        modificarEmpleado(idEmpleado, "actualizar " + campo.getEtiqueta().toLowerCase() + " del empleado " + idEmpleado,
+                () -> EmpleadoPeer.actualizarCampo(this, idEmpleado, campo, valor));
+    }
+
+    /** Edita todos los campos editables de una vez (no cambia carnet ni contraseña). */
+    public void actualizarEmpleado(Empleado empleado) throws BaseDatosException {
+        modificarEmpleado(empleado.getIdEmpleado(), "actualizar el empleado " + empleado.getIdEmpleado(),
+                () -> EmpleadoPeer.actualizar(this, empleado));
+    }
+
+    /** Reinicia la contraseña a {@value #PASSWORD_POR_DEFECTO}. */
+    public void reiniciarPassword(String idEmpleado) throws BaseDatosException {
+        String hash = SeguridadUtil.encriptarSHA256(PASSWORD_POR_DEFECTO);
+        modificarEmpleado(idEmpleado, "reiniciar la contraseña del empleado " + idEmpleado,
+                () -> EmpleadoPeer.actualizarPassword(this, idEmpleado, hash));
+    }
+
+    /** Una llamada a un Peer que devuelve filas afectadas. */
+    @FunctionalInterface
+    private interface Modificacion {
+        int ejecutar() throws SQLException;
+    }
+
+    /**
+     * Manejo de errores común a INSERT/UPDATE/DELETE de empleados: convierte la SQLException en
+     * BaseDatosException (y la deja en el log) y trata "0 filas" como NO_ENCONTRADO.
+     */
+    private void modificarEmpleado(String idEmpleado, String operacion, Modificacion modificacion)
+            throws BaseDatosException {
         int filas;
         try {
-            filas = EmpleadoPeer.eliminar(this, idEmpleado);
+            filas = modificacion.ejecutar();
         } catch (SQLException e) {
-            BaseDatosException error = BaseDatosException.desde(e, operacion);
-            LOG.log(Level.WARNING, "Error al {0} [{1}]: {2}",
-                    new Object[]{operacion, error.getTipo(), e.getMessage()});
-            throw error;
+            throw registrar(BaseDatosException.desde(e, operacion), e);
         }
         if (filas == 0) {
-            throw new BaseDatosException(BaseDatosException.Tipo.NO_ENCONTRADO,
-                    "No existe un empleado con el carnet " + idEmpleado + ". Puede que ya se haya eliminado.");
+            throw noEncontrado(idEmpleado);
         }
+    }
+
+    private static BaseDatosException registrar(BaseDatosException error, SQLException causa) {
+        LOG.log(Level.WARNING, "{0} [{1}]: {2}", new Object[]{error.getMessage(), error.getTipo(), causa.getMessage()});
+        return error;
+    }
+
+    private static BaseDatosException noEncontrado(String idEmpleado) {
+        return new BaseDatosException(BaseDatosException.Tipo.NO_ENCONTRADO,
+                "No existe un empleado con el carnet " + idEmpleado + ". Puede que se haya eliminado.");
     }
 
     // ------------------------------------------------------------------ marcas
