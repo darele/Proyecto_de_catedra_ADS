@@ -1,10 +1,6 @@
 package sv.edu.udb.rbo.model;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import sv.edu.udb.rbo.beans.Empleado;
@@ -65,6 +61,29 @@ public final class EmpleadoPeer {
     }
 
     public static int insertar(DataManager dataManager, Empleado empleado, String passwordHash) throws SQLException{
-        return 0;
+        String sql = "INSERT INTO empleado (id_empleado, nombre, Apellido, tarifa, hora_entrada, hora_salida, tiempo_receso, rol, password) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+        try(Connection connection = dataManager.getConnection();
+        PreparedStatement ps = connection.prepareStatement(sql)){
+
+            ps.setString(1, empleado.getIdEmpleado());
+            ps.setString(2, empleado.getNombre());
+            ps.setString(3, empleado.getApellido());
+
+            if(empleado.getTarifa() != null){
+                ps.setDouble(4, empleado.getTarifa());
+            }else {
+                ps.setNull(4, Types.DOUBLE);
+            }
+
+            ps.setTime(5, empleado.getHoraEntrada());
+            ps.setTime(6, empleado.getHoraSalida());
+            ps.setInt(7, empleado.getTiempoReceso());
+            ps.setString(8, empleado.getRol());
+            ps.setString(9, passwordHash);
+
+            return ps.executeUpdate();
+        }
     }
 }
