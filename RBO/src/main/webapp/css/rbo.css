@@ -501,6 +501,88 @@ code {
     font-size: 13px;
 }
 
+/* ------------------------------------------------------------ formularios del panel admin */
+
+.formulario {
+    max-width: 620px;
+    margin-top: 20px;
+}
+
+.formulario .campo {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    align-items: center;
+    column-gap: 16px;
+    margin-bottom: 16px;
+}
+
+.formulario .campo label {
+    font-weight: 600;
+    color: #212529;
+    font-size: 14px;
+}
+
+.formulario .campo input,
+.formulario .campo select {
+    width: 100%;
+    padding: 9px 12px;
+    border: 1px solid #ccd0d5;
+    border-radius: 6px;
+    font-size: 15px;
+    font-family: inherit;
+    background-color: #ffffff;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.formulario .campo input:focus,
+.formulario .campo select:focus {
+    outline: none;
+    border-color: #003DA5;
+    box-shadow: 0 0 0 3px rgba(0, 61, 165, 0.18);
+}
+
+.formulario .acciones {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 26px;
+    padding-top: 18px;
+    border-top: 1px solid #e3e7ee;
+    padding-left: 236px; /* alinea los botones con la columna de campos */
+}
+
+.btn,
+.btn-secundario {
+    display: inline-block;
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-size: 15px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.btn {
+    background-color: #003DA5;
+    color: #ffffff;
+    border: none;
+}
+
+.btn:hover {
+    background-color: #002c77;
+}
+
+.btn-secundario {
+    background-color: #ffffff;
+    color: #003DA5;
+    border: 1px solid #ccd0d5;
+}
+
+.btn-secundario:hover {
+    background-color: #eef2f7;
+}
+
 @media (max-width: 720px) {
     .admin-layout {
         flex-direction: column;
@@ -508,5 +590,14 @@ code {
 
     .admin-menu {
         width: 100%;
+    }
+
+    .formulario .campo {
+        grid-template-columns: 1fr;
+        row-gap: 6px;
+    }
+
+    .formulario .acciones {
+        padding-left: 0;
     }
 }
