@@ -1,2 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Context path="/RBO"/>
+<!--
+    Contexto de Tomcat para esta aplicación.
+
+    Define el pool de conexiones JNDI "jdbc/rbo" (libro, Capítulos 9 y 10). El DataManager
+    lo busca en java:comp/env/jdbc/rbo. Los datos de conexión viven aquí, no en el código Java:
+    para usar otro usuario, contraseña o servidor, solo se edita este archivo.
+
+    - createDatabaseIfNotExist=true: el driver crea la base rbo_marcas si no existe, y luego
+      la aplicación crea las tablas (rbo_create.sql).
+    - Tomcat 8.5 usa DBCP2, por eso los atributos son maxTotal y maxWaitMillis
+      (el libro usa maxActive, que es el nombre antiguo).
+    - XAMPP trae MySQL/MariaDB con usuario root y contraseña vacía.
+-->
+<Context>
+    <Resource name="jdbc/rbo"
+              auth="Container"
+              type="javax.sql.DataSource"
+              driverClassName="com.mysql.cj.jdbc.Driver"
+              url="jdbc:mysql://localhost:3306/rbo_marcas?createDatabaseIfNotExist=true"
+              username="root"
+              password=""
+              maxTotal="8"
+              maxIdle="4"
+              maxWaitMillis="10000"
+              validationQuery="SELECT 1"
+              testOnBorrow="true"/>
+</Context>
