@@ -45,6 +45,11 @@ public class RboServlet extends HttpServlet {
     public static final String SESION_ESTADO = "estadoMarca";
     /** Atributo de sesión que marca una sesión de prueba creada en modo desarrollo. */
     public static final String SESION_DE_PRUEBA = "sesionDePrueba";
+    /**
+     * Atributo de request con la interfaz que se está viendo ("admin", "rh", "marca").
+     * Lo lee TopMenu.jsp para resaltar la opción activa del selector de interfaces.
+     */
+    public static final String ATRIBUTO_INTERFAZ = "interfaz";
 
     /** Las vistas viven en WEB-INF para que no se puedan pedir sin pasar por el controlador. */
     static final String VISTAS = "/WEB-INF/jsp/";
@@ -171,14 +176,16 @@ public class RboServlet extends HttpServlet {
     }
 
     /**
-     * Página de inicio según el rol. El admin va a la Interfaz de Admin. RH y Contabilidad
-     * todavía no tienen interfaz propia, así que van a la marca de asistencia (antes se
-     * redirigía a rh.jsp y contabilidad.jsp, que no existían).
+     * Página de inicio según el rol. El admin va a la Interfaz de Admin y RH a la Interfaz
+     * de RH. Contabilidad todavía no tiene interfaz propia, así que va a la marca de asistencia.
      */
     static String urlDeInicio(HttpServletRequest request, Empleado empleado) {
         String contexto = request.getContextPath();
         if (empleado.isAdmin()) {
             return contexto + "/admin";
+        }
+        if (empleado.isRH()) {
+            return contexto + "/rh";
         }
         return contexto + "/rbo?action=marca";
     }
@@ -226,7 +233,7 @@ public class RboServlet extends HttpServlet {
     private static Empleado empleadoEnSesion(HttpServletRequest request) {
         HttpSession session = request.getSession(false);
         if (session == null || session.getAttribute(SESION_DE_PRUEBA) != null) {
-            return null; // una sesión de prueba del modo desarrollo no sirve fuera de /admin
+            return null; // una sesión de prueba del modo desarrollo no sirve fuera de /admin y /rh
         }
         return (Empleado) session.getAttribute(SESION_EMPLEADO);
     }
@@ -238,6 +245,7 @@ public class RboServlet extends HttpServlet {
 
     private void forward(HttpServletRequest request, HttpServletResponse response, String vista)
             throws ServletException, IOException {
+        request.setAttribute(ATRIBUTO_INTERFAZ, "marca");
         getServletContext().getRequestDispatcher(VISTAS + vista).forward(request, response);
     }
 }

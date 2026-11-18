@@ -98,6 +98,8 @@ public class AdminServlet extends HttpServlet {
                     "La Interfaz de Admin es solo para el rol admin.");
             return;
         }
+        // TopMenu.jsp resalta la interfaz activa en el selector de interfaces.
+        request.setAttribute(RboServlet.ATRIBUTO_INTERFAZ, "admin");
 
         if ("guardar-empleado".equals(request.getParameter("action"))) {
             guardarEmpleado(request, response);

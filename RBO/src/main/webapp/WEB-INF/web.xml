@@ -15,7 +15,7 @@
     <display-name>RBO - Sistema de Control de Asistencia</display-name>
 
     <!--
-        Modo desarrollo: si es true, /admin se abre sin login con un admin de prueba.
+        Modo desarrollo: si es true, /admin y /rh se abren sin login con un usuario de prueba.
         Déjelo en false. Para activarlo solo en su máquina, use la opción de JVM
         -Drbo.modoDesarrollo=true en la Run Configuration de IntelliJ (ver README).
     -->
@@ -45,6 +45,17 @@
     <servlet-mapping>
         <servlet-name>AdminServlet</servlet-name>
         <url-pattern>/admin</url-pattern>
+    </servlet-mapping>
+
+    <!-- Controlador de la Interfaz de RH (empleados y tarifas). -->
+    <servlet>
+        <servlet-name>RHServlet</servlet-name>
+        <servlet-class>sv.edu.udb.rbo.rh.RHServlet</servlet-class>
+        <load-on-startup>3</load-on-startup>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>RHServlet</servlet-name>
+        <url-pattern>/rh</url-pattern>
     </servlet-mapping>
 
     <session-config>

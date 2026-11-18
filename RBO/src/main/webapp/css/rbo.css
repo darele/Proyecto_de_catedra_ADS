@@ -170,6 +170,33 @@ body.pagina-app {
     height: auto;
 }
 
+/* Selector de interfaces del admin (Admin | Recursos Humanos) */
+.selector-interfaz {
+    display: flex;
+    background-color: #eef2f8;
+    border-radius: 8px;
+    padding: 3px;
+    gap: 3px;
+}
+
+.selector-interfaz a {
+    padding: 6px 14px;
+    border-radius: 6px;
+    color: #003DA5;
+    text-decoration: none;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.selector-interfaz a:hover {
+    background-color: #dde5f2;
+}
+
+.selector-interfaz a.activo {
+    background-color: #003DA5;
+    color: #ffffff;
+}
+
 .logout-btn {
     color: #dc3545;
     text-decoration: none;
@@ -822,6 +849,21 @@ code {
 
     .admin-menu {
         width: 100%;
+    }
+
+    /* El selector de interfaces baja a su propia fila y ocupa todo el ancho */
+    .top-bar {
+        flex-wrap: wrap;
+    }
+
+    .selector-interfaz {
+        order: 3;
+        width: 100%;
+    }
+
+    .selector-interfaz a {
+        flex: 1;
+        text-align: center;
     }
 
     .formulario .campo {

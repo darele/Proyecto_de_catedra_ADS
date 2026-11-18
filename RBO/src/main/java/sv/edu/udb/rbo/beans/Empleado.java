@@ -19,6 +19,8 @@ public class Empleado implements Serializable {
 
     /** Valor del ENUM rol que da acceso a la interfaz de administración. */
     public static final String ROL_ADMIN = "admin";
+    /** Valor del ENUM rol que da acceso a la Interfaz de RH. */
+    public static final String ROL_RH = "RH";
 
     private String idEmpleado = "";
     private String nombre = "";
@@ -129,5 +131,10 @@ public class Empleado implements Serializable {
     /** Propiedad derivada de solo lectura: {@code ${empleado.admin}}. */
     public boolean isAdmin() {
         return ROL_ADMIN.equalsIgnoreCase(rol);
+    }
+
+    /** Propiedad derivada de solo lectura: {@code ${empleado.RH}}. */
+    public boolean isRH() {
+        return ROL_RH.equalsIgnoreCase(rol);
     }
 }

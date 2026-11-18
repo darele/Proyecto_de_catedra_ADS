@@ -101,19 +101,24 @@ RBO/
     ├── main/
     │   ├── java/sv/edu/udb/rbo/
     │   │   ├── RboServlet.java          ← CONTROLADOR de la interfaz de empleado (como ShopServlet)
-    │   │   ├── ModoDesarrollo.java      ← interruptor para probar /admin sin login
+    │   │   ├── ModoDesarrollo.java      ← interruptor para probar /admin y /rh sin login
     │   │   ├── admin/
     │   │   │   └── AdminServlet.java    ← CONTROLADOR de la Interfaz de Admin
+    │   │   ├── rh/
+    │   │   │   └── RHServlet.java       ← CONTROLADOR de la Interfaz de RH (empleados y tarifas)
     │   │   ├── beans/                   ← MODELO: JavaBeans (datos que viajan a las vistas)
     │   │   │   ├── Empleado.java
     │   │   │   ├── Marca.java
     │   │   │   ├── AccionMarca.java     ← acciones del botón de marca (Entrada, Receso, …)
     │   │   │   ├── EstadoMarca.java     ← estado de la jornada (colores y textos de la vista)
-    │   │   │   └── ResumenAdmin.java
+    │   │   │   ├── Tarifa.java
+    │   │   │   ├── ResumenAdmin.java
+    │   │   │   └── ResumenRH.java
     │   │   └── model/                   ← MODELO: acceso a datos (DataManager + Peers)
     │   │       ├── DataManager.java     ← ÚNICO punto de entrada a la base de datos
     │   │       ├── EmpleadoPeer.java    ← SQL de la tabla Empleado
     │   │       ├── MarcaPeer.java       ← SQL de la tabla Marca
+    │   │       ├── TarifaPeer.java      ← SQL de la tabla Tarifa
     │   │       ├── EsquemaPeer.java     ← crea las tablas (reemplaza a DBHandler)
     │   │       └── SeguridadUtil.java   ← SHA-256 + SALT
     │   ├── resources/
@@ -131,10 +136,15 @@ RBO/
     │               ├── MarcaEmpleado.jsp
     │               ├── TopMenu.jsp      ← fragmento: barra superior (jsp:include)
     │               ├── Error.jsp
-    │               └── admin/
-    │                   ├── AdminInicio.jsp      ← "hola mundo" de la Interfaz de Admin
-    │                   ├── AdminEmpleados.jsp   ← ejemplo de pantalla con datos
-    │                   └── AdminMenu.jsp        ← fragmento: menú lateral
+    │               ├── admin/
+    │               │   ├── AdminInicio.jsp      ← "hola mundo" de la Interfaz de Admin
+    │               │   ├── AdminEmpleados.jsp   ← ejemplo de pantalla con datos
+    │               │   └── AdminMenu.jsp        ← fragmento: menú lateral
+    │               └── rh/
+    │                   ├── RHInicio.jsp         ← portada de RH (totales)
+    │                   ├── RHEmpleados.jsp      ← empleados con su horario
+    │                   ├── RHTarifas.jsp        ← registrar tarifa + historial
+    │                   └── RHMenu.jsp           ← fragmento: menú lateral
     └── test/java/sv/edu/udb/rbo/        ← pruebas JUnit 5
 ```
 
@@ -153,6 +163,7 @@ Navegador ──► /rbo?action=marca ──► RboServlet (controlador)
 |---|---|---|
 | `/RBO/rbo` | `RboServlet` | *(ninguna)* login · `login` · `logout` · `marca` · `registrarMarca` |
 | `/RBO/admin` | `AdminServlet` | *(ninguna)* / `inicio` · `empleados` |
+| `/RBO/rh` | `RHServlet` | *(ninguna)* / `inicio` · `empleados` · `tarifas` · `registrar-tarifa` (POST) |
 
 ### Reglas del proyecto (tomadas del libro)
 
@@ -203,7 +214,7 @@ Active el **modo desarrollo** solo en su máquina:
 
 Con eso, `http://localhost:8080/RBO/admin` entra directo con un *admin de prueba* (aparece un aviso amarillo).
 No necesita usuarios en la base ni la SALT. Si MySQL está apagado, la portada lo indica en lugar de fallar.
-La sesión de prueba solo sirve para `/admin`.
+La sesión de prueba solo sirve para `/admin` y `/rh`.
 Hay otra forma de activarlo: el `context-param` `modoDesarrollo` de `web.xml`. **Déjelo en `false`**, porque ese archivo sí se sube a git.
 
 Las reglas de la sección también se prueban sin servidor en `src/test/java/sv/edu/udb/rbo/admin/AdminServletTest.java`.
@@ -217,10 +228,22 @@ Las reglas de la sección también se prueban sin servidor en `src/test/java/sv/
 
 ---
 
+## Interfaz de RH (`interfaz-rh`)
+
+- **URL:** `http://localhost:8080/RBO/rh`
+- **Quién entra:** los roles `RH` (el login los redirige ahí) y `admin`. Los demás reciben *403 – Acceso denegado*.
+- **Pantallas:** portada con totales, lista de empleados con horario, y registro de tarifas con su historial (últimas 100).
+- **Archivos:** `rh/RHServlet.java` (controlador), `model/TarifaPeer.java` (SQL de Tarifa) y `WEB-INF/jsp/rh/*.jsp` (vistas).
+- Con el modo desarrollo activo, `/rh` entra con un *usuario de RH de prueba*.
+- Las validaciones del formulario de tarifas se prueban sin servidor en `src/test/java/sv/edu/udb/rbo/rh/RHServletTest.java`.
+- Reemplaza al antiguo paquete `recursoshumanos` (`TarifaServlet` + DAOs + `RH/RHindex.jsp`), que no seguía el patrón del proyecto.
+
+---
+
 ## Cambios de comportamiento respecto a la versión anterior
 
 - La base de datos y las tablas se crean al **arrancar** la aplicación. Si eso falla, por ejemplo porque MySQL estaba apagado, se reintenta en el siguiente login o al abrir el admin, y el error solo queda en el log.
-- Los roles **RH** y **Contabilidad** van a la marca de asistencia. Antes se redirigían a `rh.jsp` y `contabilidad.jsp`, que no existen, y daba 404.
+- El rol **RH** va a la Interfaz de RH (`/rh`). **Contabilidad** va a la marca de asistencia. Antes se redirigían a `rh.jsp` y `contabilidad.jsp`, que no existen, y daba 404.
 - Después de marcar **Salida**, la caja queda en rojo aunque se recargue la página. Antes volvía a verde.
 - El estado de la marca solo avanza si la marca **se guardó** en la base.
 - Un `tipo_marca` desconocido se ignora. Antes se registraba como salida.

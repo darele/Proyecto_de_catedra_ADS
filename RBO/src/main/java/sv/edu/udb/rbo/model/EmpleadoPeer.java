@@ -32,13 +32,18 @@ public final class EmpleadoPeer {
     }
 
     public static List<Empleado> listarTodos(DataManager dataManager) throws SQLException {
-        String sql = "SELECT id_empleado, nombre, Apellido, rol FROM Empleado ORDER BY Apellido, nombre";
+        String sql = "SELECT id_empleado, nombre, Apellido, rol, hora_entrada, hora_salida"
+                + " FROM Empleado ORDER BY Apellido, nombre";
         List<Empleado> empleados = new ArrayList<>();
         try (Connection connection = dataManager.getConnection();
              Statement s = connection.createStatement();
              ResultSet rs = s.executeQuery(sql)) {
             while (rs.next()) {
-                empleados.add(leerEmpleado(rs));
+                Empleado empleado = leerEmpleado(rs);
+                // El horario lo muestra la lista de la Interfaz de RH.
+                empleado.setHoraEntrada(rs.getTime("hora_entrada"));
+                empleado.setHoraSalida(rs.getTime("hora_salida"));
+                empleados.add(empleado);
             }
         }
         return empleados;

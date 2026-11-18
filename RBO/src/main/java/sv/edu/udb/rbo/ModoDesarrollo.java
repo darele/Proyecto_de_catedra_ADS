@@ -6,8 +6,8 @@ import sv.edu.udb.rbo.beans.Empleado;
 /**
  * Interruptor del "modo desarrollo".
  *
- * <p>Con el modo activo, la Interfaz de Admin se abre sin pasar por el login con un
- * administrador de prueba, para desarrollarla de forma desacoplada (sin usuarios en la
+ * <p>Con el modo activo, las Interfaces de Admin y de RH se abren sin pasar por el login con
+ * un usuario de prueba, para desarrollarlas de forma desacoplada (sin usuarios en la
  * base ni SALT configurada).</p>
  *
  * <p>Se activa de dos formas:</p>
@@ -37,5 +37,10 @@ public final class ModoDesarrollo {
     /** Administrador ficticio de la sesión de prueba (no existe en la base de datos). */
     public static Empleado adminDePrueba() {
         return new Empleado("DEMO", "Admin", "de Prueba", Empleado.ROL_ADMIN);
+    }
+
+    /** Usuario de RH ficticio de la sesión de prueba de la Interfaz de RH. */
+    public static Empleado rhDePrueba() {
+        return new Empleado("DEMO-RH", "RH", "de Prueba", Empleado.ROL_RH);
     }
 }

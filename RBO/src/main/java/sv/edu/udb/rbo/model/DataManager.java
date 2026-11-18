@@ -17,6 +17,8 @@ import javax.sql.DataSource;
 import sv.edu.udb.rbo.beans.Empleado;
 import sv.edu.udb.rbo.beans.Marca;
 import sv.edu.udb.rbo.beans.ResumenAdmin;
+import sv.edu.udb.rbo.beans.ResumenRH;
+import sv.edu.udb.rbo.beans.Tarifa;
 
 /**
  * Clase central del modelo (patrón DataManager + Peer del libro, Capítulo 5).
@@ -27,7 +29,7 @@ import sv.edu.udb.rbo.beans.ResumenAdmin;
  *       *Peer directamente. En el eshop del libro lo llaman las JSP con jsp:useBean; aquí lo
  *       llaman los controladores (Model 2 del Capítulo 3), para que las vistas no tengan lógica.</li>
  *   <li>Abre las conexiones y delega el SQL de cada tabla a su clase Peer
- *       (EmpleadoPeer, MarcaPeer, EsquemaPeer).</li>
+ *       (EmpleadoPeer, MarcaPeer, TarifaPeer, EsquemaPeer).</li>
  *   <li>Hay una sola instancia por aplicación, guardada en el ámbito application con el
  *       nombre {@value #ATRIBUTO} (equivale a
  *       {@code <jsp:useBean id="dataManager" scope="application"/>}).</li>
@@ -260,6 +262,50 @@ public class DataManager {
 
     public void registrarMarca(Marca marca) throws SQLException {
         MarcaPeer.insertarMarca(this, marca);
+    }
+
+    // ------------------------------------------------------------------ tarifas (Interfaz de RH)
+
+    /**
+     * Registra una tarifa. Antes de insertar revisa que el empleado exista, para dar un
+     * mensaje claro en lugar del error de llave foránea.
+     *
+     * @throws BaseDatosException NO_ENCONTRADO si el carnet no existe, u otro tipo si falla la base.
+     */
+    public void registrarTarifa(Tarifa tarifa) throws BaseDatosException {
+        intentarAsegurarEsquema();
+        String operacion = "registrar la tarifa del empleado " + tarifa.getIdEmpleado();
+        try {
+            if (EmpleadoPeer.buscarPorId(this, tarifa.getIdEmpleado()) == null) {
+                throw noEncontrado(tarifa.getIdEmpleado());
+            }
+            TarifaPeer.insertar(this, tarifa);
+        } catch (SQLException e) {
+            throw registrar(BaseDatosException.desde(e, operacion), e);
+        }
+    }
+
+    /** Historial: las tarifas más recientes (ver {@link TarifaPeer#LIMITE_HISTORIAL}). */
+    public List<Tarifa> getTarifasRecientes() throws SQLException {
+        return TarifaPeer.listarRecientes(this);
+    }
+
+    /**
+     * Datos de la portada de RH. Nunca lanza excepción: si la base de datos falla,
+     * devuelve un resumen con {@code baseDisponible=false}.
+     */
+    public ResumenRH getResumenRH() {
+        intentarAsegurarEsquema();
+        try {
+            ResumenRH resumen = new ResumenRH();
+            resumen.setTotalEmpleados(EmpleadoPeer.contar(this));
+            resumen.setTotalTarifas(TarifaPeer.contar(this));
+            resumen.setBaseDisponible(true);
+            return resumen;
+        } catch (SQLException e) {
+            LOG.log(Level.WARNING, "No se pudo leer el resumen de RH: {0}", e.getMessage());
+            return ResumenRH.sinBase();
+        }
     }
 
     // ------------------------------------------------------------------ administración
