@@ -1,25 +1,4 @@
-<%-- 
-    Document   : index
-    Created on : Nov 8, 2026, 4:22:46 PM
-    Author     : pdarw
---%>
-
-<%@page import="basededatos.DBHandler"%>
-<%@page import="java.util.List"%>
-<%@page contentType="text/html" pageEncoding="UTF-8"%>
-<!DOCTYPE html>
-<html>
-    <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <title>This is Index.JSP</title>
-    </head>
-    <body>
-        
-        <h1>Hello I am Index.jsp!</h1>
-        
-        <%
-            DBHandler baseDatos = new DBHandler();
-            baseDatos.init();
-        %>
-    </body>
-</html>
+<%@page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" session="false"%>
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%-- Página de bienvenida: todo entra por el controlador (Model 2), igual que /eshop/shop en el libro. --%>
+<c:redirect url="/rbo"/>
