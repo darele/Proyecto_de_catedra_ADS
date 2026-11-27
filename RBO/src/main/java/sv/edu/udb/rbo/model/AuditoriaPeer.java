@@ -1,6 +1,7 @@
 package sv.edu.udb.rbo.model;
 
 import sv.edu.udb.rbo.beans.Empleado;
+import sv.edu.udb.rbo.beans.Marca;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -61,5 +62,25 @@ public class AuditoriaPeer {
                 signedUser,
                 getInfoEmpleadoRaw(dataManager, idEmpleadoEliminado));
     }
+
+    private static String getMarcaInfoRaw(Marca marca) {
+        StringBuilder infoMarcaRaw = new StringBuilder();
+        infoMarcaRaw.append(marca.getFechaMarca()).append(", ");
+        infoMarcaRaw.append(marca.getHoraMarca()).append(", ");
+        infoMarcaRaw.append(marca.getTipoMarca()).append(", ");
+        infoMarcaRaw.append(marca.getComentario()).append(", ");
+        infoMarcaRaw.append(marca.getIdEmpleado());
+        return infoMarcaRaw.toString();
+    }
+
+    public static int logMarca(DataManager dataManager, String signedUser, Marca marca) throws SQLException {
+        return logCambio(dataManager,
+                "insertar",
+                "marca",
+                String.valueOf(marca.getIdMarca()),
+                signedUser,
+                "");
+    }
+
 
 }

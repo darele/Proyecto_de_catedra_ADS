@@ -275,8 +275,12 @@ public class DataManager {
 
     // ------------------------------------------------------------------ marcas
 
-    public void registrarMarca(Marca marca) throws SQLException {
-        MarcaPeer.insertarMarca(this, marca);
+    public int registrarMarca(Marca marca) throws SQLException {
+        return MarcaPeer.insertarMarca(this, marca);
+    }
+
+    public void logMarca(String signedUser, Marca marca) throws SQLException {
+        AuditoriaPeer.logMarca(this, signedUser, marca);
     }
 
     // ------------------------------------------------------------------ tarifas (Interfaz de RH)
