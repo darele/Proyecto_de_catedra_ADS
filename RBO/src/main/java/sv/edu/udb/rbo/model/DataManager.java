@@ -162,10 +162,25 @@ public class DataManager {
         return EmpleadoPeer.listarTodos(this);
     }
 
+    public void logNuevoEmpleado(String signedEmpleado, String idNuevoEmpleado) throws SQLException {
+        intentarAsegurarEsquema();
+        AuditoriaPeer.logNuevoEmpleado(this, signedEmpleado, idNuevoEmpleado);
+    }
+
     public void registrarEmpleado(Empleado empleado, String passwordPlano) throws SQLException{
         intentarAsegurarEsquema();
         String hash = SeguridadUtil.encriptarSHA256(passwordPlano);
         EmpleadoPeer.insertar(this, empleado, hash);
+    }
+
+    public void logEmpleadoModificado(String signedEmpleado, String idNuevoEmpleado) throws SQLException {
+        intentarAsegurarEsquema();
+        AuditoriaPeer.logEmpleadoModificado(this, signedEmpleado, idNuevoEmpleado);
+    }
+
+    public void logEmpleadoEliminado(String empleado, String idNuevoEmpleado) throws SQLException {
+        intentarAsegurarEsquema();
+        AuditoriaPeer.logEmpleadoBorrado(this, empleado, idNuevoEmpleado);
     }
 
     /**
