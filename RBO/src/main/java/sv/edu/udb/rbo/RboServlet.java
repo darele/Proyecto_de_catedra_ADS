@@ -15,6 +15,7 @@ import sv.edu.udb.rbo.beans.Empleado;
 import sv.edu.udb.rbo.beans.EstadoMarca;
 import sv.edu.udb.rbo.beans.Marca;
 import sv.edu.udb.rbo.model.DataManager;
+import sv.edu.udb.rbo.model.MarcaPeer;
 
 /**
  * Controlador (la "C" de MVC) de la interfaz de empleado: login, logout y marca de asistencia.
@@ -215,9 +216,11 @@ public class RboServlet extends HttpServlet {
             Marca marca = new Marca(empleado.getIdEmpleado(), accion.getTipoMarcaDB(),
                     accion.comentarioPara(request.getParameter("comentario")));
             try {
-                dataManager.registrarMarca(marca);
+                int idGenerado = dataManager.registrarMarca(marca);
                 // El estado solo avanza si la marca se guardó en la base.
                 session.setAttribute(SESION_ESTADO, EstadoMarca.despuesDe(accion));
+                Marca marcaRegistrada = MarcaPeer.getMarcaPorId(dataManager, idGenerado);
+                dataManager.logMarca(empleado.getIdEmpleado(), marcaRegistrada);
                 request.setAttribute("mensaje", accion.getMensajeConfirmacion());
             } catch (SQLException e) {
                 LOG.log(Level.SEVERE, "No se pudo registrar la marca", e);

@@ -42,3 +42,14 @@ CREATE TABLE IF NOT EXISTS Tarifa (
   id_empleado  VARCHAR(10) NOT NULL,
   FOREIGN KEY (id_empleado) REFERENCES Empleado(id_empleado)
 );
+
+CREATE TABLE IF NOT EXISTS Auditoria ( 
+    id_log INT PRIMARY KEY AUTO_INCREMENT, 
+    accion VARCHAR(10),
+    fecha_log DATE DEFAULT (CURRENT_DATE) NOT NULL, 
+    hora_log TIME DEFAULT (CURRENT_TIME) NOT NULL, 
+    nombre_tabla VARCHAR(30) NOT NULL, 
+    llave_primaria VARCHAR(10) NOT NULL, 
+    usuario VARCHAR(10) NOT NULL, 
+    estado_anterior VARCHAR(300) NOT NULL
+);

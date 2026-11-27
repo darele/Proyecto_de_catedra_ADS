@@ -11,12 +11,13 @@ import org.junit.jupiter.api.Test;
 class EsquemaPeerTest {
 
     @Test
-    void elScriptTieneLasTresTablas() throws Exception {
+    void elScriptTieneLasCuatroTablas() throws Exception {
         List<String> sentencias = EsquemaPeer.leerSentencias();
-        assertEquals(3, sentencias.size());
+        assertEquals(4, sentencias.size());
         assertTrue(sentencias.get(0).startsWith("CREATE TABLE IF NOT EXISTS Empleado"));
         assertTrue(sentencias.get(1).startsWith("CREATE TABLE IF NOT EXISTS Marca"));
         assertTrue(sentencias.get(2).startsWith("CREATE TABLE IF NOT EXISTS Tarifa"));
+        assertTrue(sentencias.get(3).startsWith("CREATE TABLE IF NOT EXISTS Auditoria"));
         for (String sql : sentencias) {
             assertFalse(sql.endsWith(";"), "JDBC no acepta el ';' final: " + sql);
             assertFalse(sql.contains("--"), "Quedó un comentario dentro de la sentencia: " + sql);

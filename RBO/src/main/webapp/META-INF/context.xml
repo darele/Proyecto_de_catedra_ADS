@@ -12,17 +12,6 @@
       (el libro usa maxActive, que es el nombre antiguo).
     - XAMPP trae MySQL/MariaDB con usuario root y contraseña vacía.
 -->
-<Context>
-    <Resource name="jdbc/rbo"
-              auth="Container"
-              type="javax.sql.DataSource"
-              driverClassName="com.mysql.cj.jdbc.Driver"
-              url="jdbc:mysql://localhost:3306/rbo_marcas?createDatabaseIfNotExist=true"
-              username="root"
-              password=""
-              maxTotal="8"
-              maxIdle="4"
-              maxWaitMillis="10000"
-              validationQuery="SELECT 1"
-              testOnBorrow="true"/>
+<Context path="/RBO">
+  <Resource auth="Container" driverClassName="com.mysql.cj.jdbc.Driver" maxIdle="4" maxTotal="8" maxWaitMillis="10000" name="jdbc/rbo" password="" testOnBorrow="true" type="javax.sql.DataSource" url="jdbc:mysql://localhost:3306/rbo_marcas?createDatabaseIfNotExist=true" username="root" validationQuery="SELECT 1"/>
 </Context>
