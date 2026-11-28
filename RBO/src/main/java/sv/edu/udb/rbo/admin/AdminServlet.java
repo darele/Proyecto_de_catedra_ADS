@@ -125,6 +125,10 @@ public class AdminServlet extends HttpServlet {
 
     private void guardarEmpleado(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+
+        HttpSession session = request.getSession(false);
+        Empleado signedEmpleado = (session == null) ? null : (Empleado) session.getAttribute(RboServlet.SESION_EMPLEADO);
+
         String idEmpleado = request.getParameter("idEmpleado");
         String nombre = request.getParameter("nombre");
         String apellido = request.getParameter("apellido");
@@ -151,6 +155,8 @@ public class AdminServlet extends HttpServlet {
         try {
             Empleado nuevoEmp = new Empleado(idEmpleado, nombre, apellido, tarifa, horaEntrada,
                     horaSalida, tiempoReceso, rol);
+
+            dataManager.logNuevoEmpleado(signedEmpleado.getIdEmpleado(), idEmpleado);
             dataManager.registrarEmpleado(nuevoEmp, password);
             response.sendRedirect(request.getContextPath() + "/admin?action=empleados");
         } catch (SQLException e) {
@@ -175,6 +181,9 @@ public class AdminServlet extends HttpServlet {
             return;
         }
 
+        HttpSession session = request.getSession(false);
+        Empleado signedEmpleado = (session == null) ? null : (Empleado) session.getAttribute(RboServlet.SESION_EMPLEADO);
+
         String error = null;
         String detalle = null;
         if (idEmpleado == null || idEmpleado.trim().isEmpty()) {
@@ -183,6 +192,7 @@ public class AdminServlet extends HttpServlet {
             error = "No puede eliminar su propio usuario mientras tiene la sesión abierta.";
         } else {
             try {
+                dataManager.logEmpleadoEliminado(signedEmpleado.getIdEmpleado(), idEmpleado);
                 dataManager.eliminarEmpleado(idEmpleado);
                 response.sendRedirect(request.getContextPath() + "/admin?action=eliminar-empleado&eliminado="
                         + URLEncoder.encode(idEmpleado, "UTF-8"));
@@ -191,6 +201,11 @@ public class AdminServlet extends HttpServlet {
                 error = e.getMessage();
                 detalle = e.getDetalleTecnico();
                 request.setAttribute("tipoError", e.getTipo().name());
+            } catch (SQLException e) {
+                LOG.log(Level.WARNING, "Error al borrar empleado en BD: {0}", e.getMessage());
+                request.setAttribute("error", "Error al borrar empleado: " + e.getMessage());
+                request.setAttribute("seccion", "empleados");
+                getServletContext().getRequestDispatcher(VISTAS + VISTA_NUEVO_EMPLEADO).forward(request, response);
             }
         }
 
@@ -211,11 +226,17 @@ public class AdminServlet extends HttpServlet {
             response.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED, "Editar requiere POST.");
             return;
         }
+
+        HttpSession session = request.getSession(false);
+        Empleado signedEmpleado = (session == null) ? null : (Empleado) session.getAttribute(RboServlet.SESION_EMPLEADO);
+
+
         String idEmpleado = request.getParameter("idEmpleado");
         String campoParam = request.getParameter("campo");
         boolean esPropio = idEmpleado != null && idEmpleado.equals(enSesion.getIdEmpleado());
 
         try {
+            dataManager.logEmpleadoModificado(signedEmpleado.getIdEmpleado(), idEmpleado);
             if (CAMPO_TODOS.equals(campoParam)) {
                 Empleado editado = new Empleado();
                 editado.setIdEmpleado(idEmpleado);
@@ -245,6 +266,11 @@ public class AdminServlet extends HttpServlet {
             mostrarEditorConError(request, response, e.getMessage(), null, null);
         } catch (BaseDatosException e) {
             mostrarEditorConError(request, response, e.getMessage(), e.getDetalleTecnico(), e.getTipo().name());
+        } catch (SQLException e) {
+            LOG.log(Level.WARNING, "Error al modificar empleado en BD: {0}", e.getMessage());
+            request.setAttribute("error", "Error al modificar empleado: " + e.getMessage());
+            request.setAttribute("seccion", "empleados");
+            getServletContext().getRequestDispatcher(VISTAS + VISTA_NUEVO_EMPLEADO).forward(request, response);
         }
     }
 

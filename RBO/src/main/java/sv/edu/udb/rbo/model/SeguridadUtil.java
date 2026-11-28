@@ -76,6 +76,7 @@ public final class SeguridadUtil {
 
     /** Imprime el hash de cada contraseña recibida como argumento. */
     public static void main(String[] args) {
+        args = new String[]{"12345"};
         if (args.length == 0) {
             System.out.println("Uso: SeguridadUtil <contraseña> [<contraseña> ...]");
             return;

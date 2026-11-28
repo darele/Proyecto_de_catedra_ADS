@@ -1,6 +1,7 @@
 package sv.edu.udb.rbo.beans;
 
 import java.io.Serializable;
+import java.sql.Time;
 
 /**
  * JavaBean que representa una fila de la tabla Marca.
@@ -15,9 +16,37 @@ public class Marca implements Serializable {
     /** Longitud máxima de la columna comentario (VARCHAR(100)). */
     public static final int MAX_COMENTARIO = 100;
 
+    private int idMarca;
     private String idEmpleado = "";
     private String tipoMarca = "";
     private String comentario = "";
+    private Time horaMarca = null;
+    private Time fechaMarca = null;
+
+    public void setIdMarca(int idMarca) {
+        this.idMarca = idMarca;
+    }
+
+    public int getIdMarca() {
+        return idMarca;
+    }
+
+
+    public Time getHoraMarca() {
+        return horaMarca;
+    }
+
+    public Time getFechaMarca() {
+        return fechaMarca;
+    }
+
+    public void setFechaMarca(Time fechaMarca) {
+        this.fechaMarca = fechaMarca;
+    }
+
+    public void setHoraMarca(Time horaMarca) {
+        this.horaMarca = horaMarca;
+    }
 
     public Marca() {
     }
